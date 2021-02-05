@@ -470,6 +470,16 @@ static LIBC_SYSCALL_RET_TYPE handle_getdents64(va_list args)
 
 #endif /* __linux__ */
 
+static LIBC_SYSCALL_RET_TYPE handle_passthrough(long n, va_list args) {
+	long arg1 = va_arg(args, long);
+	long arg2 = va_arg(args, long);
+	long arg3 = va_arg(args, long);
+	long arg4 = va_arg(args, long);
+	long arg5 = va_arg(args, long);
+	long arg6 = va_arg(args, long);
+	return tsocks_libc_syscall(n, arg1, arg2, arg3, arg4, arg5, arg6);
+}
+
 /*
  * Torsocks call for syscall(2)
  */
@@ -597,14 +607,7 @@ LIBC_SYSCALL_RET_TYPE tsocks_syscall(long int number, va_list args)
 		break;
 #endif /* __linux__ */
 	default:
-		/*
-		 * Because of the design of syscall(), we can't pass a va_list to it so
-		 * we are constraint to use a whitelist scheme and denying the rest.
-		 */
-		WARN("[syscall] Unsupported syscall number %ld. Denying the call",
-				number);
-		ret = -1;
-		errno = ENOSYS;
+		ret = handle_passthrough(number, args);
 		break;
 	}
 
