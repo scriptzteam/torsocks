@@ -607,6 +607,8 @@ LIBC_SYSCALL_RET_TYPE tsocks_syscall(long int number, va_list args)
 		break;
 #endif /* __linux__ */
 	default:
+		DBG("[syscall] Unsupported __syscall number %ld. Passing through",
+				number);
 		ret = handle_passthrough(number, args);
 		break;
 	}
